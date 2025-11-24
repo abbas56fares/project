@@ -1,0 +1,11 @@
+#habitdetail h2,
+#habitdetail h5 {
+  color: #764ba2;
+}
+#habitdetail {
+  background-color: white;
+}
+
+#habitdetail ul {
+  list-style: none;
+}

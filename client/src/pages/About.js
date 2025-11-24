@@ -3,7 +3,7 @@ import '../styles/about.css';
 function About() {
   return (
     <div id='about' className="container my-4">
-      <div className="glass-card p-4">
+      <div className="glass-card p-4 bg-white">
         <h2>About HabitFlow</h2>
         <p>HabitFlow is a modern habit & productivity tracker built to help people form consistent routines through simple tracking and meaningful visual feedback.</p>
         <h5>Mission</h5>

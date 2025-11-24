@@ -10,12 +10,12 @@ function Features() {
 
   return (
     <div className="container my-4">
-      <h2>Features</h2>
+      <h2 className='text-white'>Features</h2>
       <div className="row">
         {features.map((f,i) => (
           <div className="col-md-6" key={i}>
-            <div className="glass-card p-3 mb-3">
-              <h5>{f.title}</h5>
+            <div className="glass-card p-3 mb-3 bg-white">
+              <h5 className="fw-bold" style={{color: "#764ba2"}}>{f.title}</h5>
               <p>{f.text}</p>
             </div>
           </div>
