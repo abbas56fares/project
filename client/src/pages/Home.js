@@ -78,9 +78,9 @@ function Home() {
             </button>
           </div>
 
-          <input
+          <input style={{ border: "grey solid 1px" }}
             type="text"
-            className="form-control mt-3"
+            className="form-control mt-3 text-black"
             placeholder="Search habits..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
