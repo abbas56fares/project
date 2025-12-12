@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const db = require('../config/db');
 
-// Submit contact form
+
 router.post('/', async (req, res) => {
   try {
     const { name, email, message } = req.body;
@@ -26,7 +26,7 @@ router.post('/', async (req, res) => {
   }
 });
 
-// Get all contact messages (for admin purposes)
+
 router.get('/', async (req, res) => {
   try {
     const [messages] = await db.query('SELECT * FROM contact_messages ORDER BY created_at DESC');

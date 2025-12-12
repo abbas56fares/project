@@ -15,7 +15,7 @@ function Register() {
     e.preventDefault();
     setError('');
 
-    // Validation
+    
     if (password !== confirmPassword) {
       setError('Passwords do not match');
       return;
@@ -45,7 +45,7 @@ function Register() {
         return;
       }
 
-      // Redirect to login page after successful registration
+      
       alert('Registration successful! Please login.');
       navigate('/login');
     } catch (err) {

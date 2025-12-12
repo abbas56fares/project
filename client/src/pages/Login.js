@@ -31,12 +31,12 @@ function Login() {
         return;
       }
 
-      // Store user data in localStorage
+      
       localStorage.setItem('user', JSON.stringify(data.user));
       
-      // Redirect to home page
+      
       navigate('/');
-      window.location.reload(); // Reload to update navbar
+      window.location.reload(); 
     } catch (err) {
       setError('Connection error. Please make sure the server is running.');
       setLoading(false);

@@ -2,17 +2,17 @@ const express = require('express');
 const router = express.Router();
 const db = require('../config/db');
 
-// Register endpoint
+
 router.post('/register', async (req, res) => {
   try {
     const { username, email, password } = req.body;
 
-    // Validation
+    
     if (!username || !email || !password) {
       return res.status(400).json({ error: 'All fields are required' });
     }
 
-    // Check if user already exists
+   
     const [existingUsers] = await db.query(
       'SELECT * FROM users WHERE email = ? OR username = ?',
       [email, username]
@@ -22,7 +22,7 @@ router.post('/register', async (req, res) => {
       return res.status(400).json({ error: 'User already exists with this email or username' });
     }
 
-    // Insert new user (password stored as plain text - simple version)
+    
     const [result] = await db.query(
       'INSERT INTO users (username, email, password) VALUES (?, ?, ?)',
       [username, email, password]
@@ -38,17 +38,17 @@ router.post('/register', async (req, res) => {
   }
 });
 
-// Login endpoint
+
 router.post('/login', async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    // Validation
+   
     if (!email || !password) {
       return res.status(400).json({ error: 'Email and password are required' });
     }
 
-    // Find user
+   
     const [users] = await db.query(
       'SELECT * FROM users WHERE email = ? AND password = ?',
       [email, password]
@@ -60,7 +60,7 @@ router.post('/login', async (req, res) => {
 
     const user = users[0];
 
-    // Return user data (excluding password)
+    
     res.json({
       message: 'Login successful',
       user: {

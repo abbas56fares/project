@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const db = require('../config/db');
 
-// Get all habits for a user
+
 router.get('/:userId', async (req, res) => {
   try {
     const { userId } = req.params;
@@ -17,7 +17,7 @@ router.get('/:userId', async (req, res) => {
   }
 });
 
-// Create a new habit
+
 router.post('/', async (req, res) => {
   try {
     const { userId, title, description, category } = req.body;
@@ -41,7 +41,7 @@ router.post('/', async (req, res) => {
   }
 });
 
-// Update a habit
+
 router.put('/:id', async (req, res) => {
   try {
     const { id } = req.params;
@@ -63,7 +63,7 @@ router.put('/:id', async (req, res) => {
   }
 });
 
-// Delete a habit
+
 router.delete('/:id', async (req, res) => {
   try {
     const { id } = req.params;

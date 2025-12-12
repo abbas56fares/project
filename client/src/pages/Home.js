@@ -21,7 +21,7 @@ function Home() {
 
   const [currentHabit, setCurrentHabit] = useState(null);
 
-  // Fetch user and habits on mount
+
   useEffect(() => {
     const userData = localStorage.getItem('user');
     if (!userData) {
@@ -34,7 +34,7 @@ function Home() {
     fetchHabits(parsedUser.id);
   }, [navigate]);
 
-  // Fetch habits from backend
+  
   const fetchHabits = async (userId) => {
     try {
       const response = await fetch(`http://localhost:5000/api/habits/${userId}`);
@@ -77,7 +77,7 @@ function Home() {
       const data = await response.json();
 
       if (response.ok) {
-        // Refresh habits list
+        
         await fetchHabits(user.id);
         setNewHabit({ title: "", description: "", category: "" });
         setShowAddModal(false);
@@ -102,7 +102,7 @@ function Home() {
       const data = await response.json();
 
       if (response.ok) {
-        // Refresh habits list
+        
         await fetchHabits(user.id);
         alert('Habit deleted successfully!');
       } else {
@@ -141,7 +141,7 @@ function Home() {
       const data = await response.json();
 
       if (response.ok) {
-        // Refresh habits list
+       
         await fetchHabits(user.id);
         setShowEditModal(false);
         alert('Habit updated successfully!');
