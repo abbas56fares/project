@@ -1,11 +1,14 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import HabitCard from "../components/HabitCard";
-import habitsData from "../data/habits";
 import "../styles/AddHabit.css";
 
 function Home() {
   const [search, setSearch] = useState("");
-  const [habits, setHabits] = useState(habitsData);
+  const [habits, setHabits] = useState([]);
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   const [showAddModal, setShowAddModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
@@ -18,28 +21,97 @@ function Home() {
 
   const [currentHabit, setCurrentHabit] = useState(null);
 
+  // Fetch user and habits on mount
+  useEffect(() => {
+    const userData = localStorage.getItem('user');
+    if (!userData) {
+      navigate('/login');
+      return;
+    }
+    
+    const parsedUser = JSON.parse(userData);
+    setUser(parsedUser);
+    fetchHabits(parsedUser.id);
+  }, [navigate]);
+
+  // Fetch habits from backend
+  const fetchHabits = async (userId) => {
+    try {
+      const response = await fetch(`http://localhost:5000/api/habits/${userId}`);
+      const data = await response.json();
+      
+      if (response.ok) {
+        setHabits(data);
+      } else {
+        console.error('Failed to fetch habits:', data.error);
+      }
+    } catch (error) {
+      console.error('Error fetching habits:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const filtered = habits.filter((h) =>
     h.title.toLowerCase().includes(search.toLowerCase())
   );
 
-  const handleAddHabit = () => {
+  const handleAddHabit = async () => {
     if (!newHabit.title.trim()) return alert("Title is required!");
+    if (!user) return;
 
-    const habitObj = {
-      id: habits.length + 1,
-      ...newHabit,
-      streak: 0,
-    };
+    try {
+      const response = await fetch('http://localhost:5000/api/habits', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userId: user.id,
+          title: newHabit.title,
+          description: newHabit.description,
+          category: newHabit.category,
+        }),
+      });
 
-    setHabits([habitObj, ...habits]);
-    setNewHabit({ title: "", description: "", category: "" });
+      const data = await response.json();
 
-    setShowAddModal(false);
+      if (response.ok) {
+        // Refresh habits list
+        await fetchHabits(user.id);
+        setNewHabit({ title: "", description: "", category: "" });
+        setShowAddModal(false);
+        alert('Habit created successfully!');
+      } else {
+        alert(data.error || 'Failed to create habit');
+      }
+    } catch (error) {
+      console.error('Error creating habit:', error);
+      alert('Connection error. Please make sure the server is running.');
+    }
   };
 
-  const handleDeleteHabit = (id) => {
-    const updated = habits.filter((h) => h.id !== id);
-    setHabits(updated);
+  const handleDeleteHabit = async (id) => {
+    if (!window.confirm('Are you sure you want to delete this habit?')) return;
+
+    try {
+      const response = await fetch(`http://localhost:5000/api/habits/${id}`, {
+        method: 'DELETE',
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        // Refresh habits list
+        await fetchHabits(user.id);
+        alert('Habit deleted successfully!');
+      } else {
+        alert(data.error || 'Failed to delete habit');
+      }
+    } catch (error) {
+      console.error('Error deleting habit:', error);
+      alert('Connection error. Please make sure the server is running.');
+    }
   };
 
   
@@ -49,13 +121,48 @@ function Home() {
   };
 
 
-  const handleSaveEdit = () => {
-    const updated = habits.map((h) =>
-      h.id === currentHabit.id ? currentHabit : h
-    );
-    setHabits(updated);
-    setShowEditModal(false);
+  const handleSaveEdit = async () => {
+    if (!currentHabit || !user) return;
+
+    try {
+      const response = await fetch(`http://localhost:5000/api/habits/${currentHabit.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          title: currentHabit.title,
+          description: currentHabit.description,
+          category: currentHabit.category,
+          streak: currentHabit.streak,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        // Refresh habits list
+        await fetchHabits(user.id);
+        setShowEditModal(false);
+        alert('Habit updated successfully!');
+      } else {
+        alert(data.error || 'Failed to update habit');
+      }
+    } catch (error) {
+      console.error('Error updating habit:', error);
+      alert('Connection error. Please make sure the server is running.');
+    }
   };
+
+  if (loading) {
+    return (
+      <div className="background-gradient py-5 min-vh-100 d-flex align-items-center justify-content-center">
+        <div className="text-white">
+          <h3>Loading habits...</h3>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="background-gradient py-5">
@@ -68,6 +175,7 @@ function Home() {
               <p className="lead text-black">
                 Track your habits, build streaks, visualize progress
               </p>
+              {user && <p className="text-muted">Welcome, {user.username}!</p>}
             </div>
 
             <button
@@ -89,15 +197,21 @@ function Home() {
 
         
         <div className="row">
-          {filtered.map((habit) => (
-            <div className="col-md-4" key={habit.id}>
-              <HabitCard
-                habit={habit}
-                onDelete={handleDeleteHabit}
-                onEdit={openEditModal}
-              />
+          {filtered.length === 0 ? (
+            <div className="col-12 text-center text-white mt-4">
+              <h4>{habits.length === 0 ? 'No habits yet. Start by adding your first habit!' : 'No habits match your search.'}</h4>
             </div>
-          ))}
+          ) : (
+            filtered.map((habit) => (
+              <div className="col-md-4" key={habit.id}>
+                <HabitCard
+                  habit={habit}
+                  onDelete={handleDeleteHabit}
+                  onEdit={openEditModal}
+                />
+              </div>
+            ))
+          )}
         </div>
       </div>
 
